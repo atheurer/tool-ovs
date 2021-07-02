@@ -11,20 +11,17 @@ pidfile="ovs-collect-pid.txt"
 if [ -e $pidfile ]; then
     pid=`cat $pidfile`
     if [ -z "$pid" ]; then
-        echo "PID for ovs-collect ($pidfile) not found"
-        exit 1
-    fi
-    if [ -e /proc/$pid ]; then
+        echo "WARNING: PID for ovs-collect was not not found in $pidfile"
+    elif [ -e /proc/$pid ]; then
         kill -s SIGTERM $pid
     else
-        echo "ERROR: process ID $pid was not found, so ovs-collect may have terminated abnormally"
+        echo "WARNING: process ID $pid was not found, so ovs-collect may have terminated abnormally"
     fi
 else
-    echo "$pidfile not found"
+    echo "WARNING: $pidfile not found"
     echo "PWD: `/bin/pwd`"
     echo "LS:"
     /bin/ls -l
-    exit 1
 fi
 if [ -f /usr/bin/xz ]; then
     echo "Compressing any ovs data files"
@@ -32,3 +29,4 @@ if [ -f /usr/bin/xz ]; then
     xz -T 0 dpctl*.txt
     xz -T 0 conntrack*.txt
 fi
+exit 0
